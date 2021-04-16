@@ -54,6 +54,7 @@ auto const dot = delimiter('.');
 
 //  MARK: - Function Prototype.
 auto C_span(int argc, const char * argv[]) -> decltype(argc);
+auto C_span_deduction_guides(int argc, const char * argv[]) -> decltype(argc);
 
 //  MARK: - Implementation.
 //  ....+....!....+....!....+....!....+....!....+....!....+....!....+....!....+....!
@@ -66,6 +67,8 @@ int main(int argc, const char * argv[]) {
 
   std::cout << '\n' << konst::dlm << std::endl;
   C_span(argc, argv);
+  std::cout << '\n' << konst::dlm << std::endl;
+  C_span_deduction_guides(argc, argv);
 
   return 0;
 }
@@ -666,5 +669,76 @@ auto C_span(int argc, const char * argv[]) -> decltype(argc) {
 
   std::cout << std::endl; //  make sure cout is flushed.
 
+  return 0;
+}
+
+//  MARK: - C_span_deduction_guides
+//  ....+....!....+....!....+....!....+....!....+....!....+....!....+....!....+....!
+//  ================================================================================
+//  ....+....!....+....!....+....!....+....!....+....!....+....!....+....!....+....!
+/*
+ *  MARK: C_span_deduction_guides()
+ */
+auto C_span_deduction_guides(int argc, const char * argv[]) -> decltype(argc) {
+  std::cout << "In "s << __func__ << std::endl;
+
+  // ....+....!....+....!....+....!....+....!....+....!....+....!
+  std::cout << konst::dot << '\n';
+  std::cout << "std::span = deduction guides"s << '\n';
+  {
+    std::cout << std::setfill(' ');
+    auto print = [](std::string_view rem = ""s,
+                    std::size_t size_of = 0,
+                    std::size_t extent = 0) {
+      if (rem.empty()) {
+        std::cout << "name │ sizeof │ extent\n─────┼────────┼────────\n"s;
+        return;
+      }
+
+      std::cout << std::setw(4) << rem << " │ " << std::setw(6) << size_of << " │ "s;
+
+      if (extent == std::dynamic_extent) {
+        std::cout << "dynamic"s;
+      }
+      else {
+        std::cout << extent;
+      }
+
+      std::cout << '\n';
+    };
+
+    int ary[] { 1, 2, 3, 4, 5, };
+
+    print();
+    std::span s1 { std::begin(ary), std::end(ary) }; // guide (1)
+    print("s1"s, sizeof s1, s1.extent);
+
+    std::span s2 { std::begin(ary), 3 }; // guide (1)
+    print("s2"s, sizeof s2, s2.extent);
+
+    std::span s3 { ary }; // guide (2)
+    print("s3"s, sizeof s3, s3.extent);
+
+    std::span<int> s4 { ary }; // does not use a guide, makes a dynamic span
+    print("s4"s, sizeof s4, s4.extent);
+
+    std::array arr1 { 6, 7, 8, };
+    std::span s5 { arr1 }; // guide (3)
+    print("s5"s, sizeof s5, s5.extent);
+    s5[0] = 42; // OK, element_type is 'int'
+
+    const std::array arr2 { 9, 10, 11, };
+    std::span s6 { arr2 }; // guide (4)
+    print("s6"s, sizeof s6, s6.extent);
+    // s6[0] = 42; // Error: element_type is 'const int'
+
+    std::vector vec { 66, 69, 99, };
+    std::span s7 { vec }; // guide (5)
+    print("s7"s, sizeof s7, s7.extent);
+
+    std::cout << '\n';
+  };
+
+std::cout << std::endl; //  make sure cout is flushed.
   return 0;
 }
