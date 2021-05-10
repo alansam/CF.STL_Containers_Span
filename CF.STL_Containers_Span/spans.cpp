@@ -23,9 +23,9 @@
 #include <vector>
 #include <cassert>
 #include <cstddef>
-#if (__cplusplus > 201707L)
+#if (__cplusplus > 202002L)
 #include <ranges>
-#endif  /* (__cplusplus > 201707L) */
+#endif  /* (__cplusplus > 202002L) */
 
 using namespace std::literals::string_literals;
 
@@ -196,13 +196,13 @@ auto C_span(int argc, const char * argv[]) -> decltype(argc) {
         return;
       }
       std::cout << info << '[' << span.size() << "] {"s;
-#if (__cplusplus > 201707L)
+#if (__cplusplus > 202002L)
       std::ranges::for_each(span, [](int const x_) { std::cout << ' ' << x_; });
 #else
-      std::for_each(span.cbegin(), span.cend(), [](int const x_) {
+      std::for_each(span.begin(), span.end(), [](int const x_) {
         std::cout << ' ' << x_;
       });
-#endif  /* (__cplusplus > 201707L) */
+#endif  /* (__cplusplus > 202002L) */
       std::cout << " }"s;
       if (extent != 0) {
         std::cout << " extent = "s;
@@ -238,13 +238,13 @@ auto C_span(int argc, const char * argv[]) -> decltype(argc) {
     print("s1"s, s1);
 
     print("Fill s1 with 5:"s);
-#if (__cplusplus > 201707L)
+#if (__cplusplus > 202002L)
     std::ranges::fill(s1, 5);
     // s2 is also 'updated' since s1 and s2 point to the same data
     assert(std::ranges::equal(s1, s2));
 #else
     std::fill(s1.begin(), s1.end(), 5);
-    assert(std::equal(s1.cbegin(), s1.cend(), s2.cbegin()));
+    assert(std::equal(s1.begin(), s1.end(), s2.begin()));
 #endif  /* (__cplusplus > 201707L) */
     print("s1"s, s1);
     print("s2"s, s2);
@@ -582,16 +582,16 @@ auto C_span(int argc, const char * argv[]) -> decltype(argc) {
       auto const rows{ abc.size() - columns + 1 };
 
       for (auto offset{ 0U }; offset < rows; ++offset) {
-#if (__cplusplus > 201707L)
+#if (__cplusplus > 202002L)
         std::ranges::for_each(
           abc.subspan(offset, columns),
           std::putchar
         );
 #else
-        std::for_each(abc.subspan(offset, columns).cbegin(),
-                      abc.subspan(offset, columns).cend(),
+        std::for_each(abc.subspan(offset, columns).begin(),
+                      abc.subspan(offset, columns).end(),
                       std::putchar);
-#endif  /* (__cplusplus > 201707L) */
+#endif  /* (__cplusplus > 202002L) */
         std::putchar('\n');
       }
     };
